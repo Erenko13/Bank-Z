@@ -19,3 +19,9 @@ POST auth/register/
 - FORM-DATA email
 - FORM-DATA first_name
 - FORM-DATA last_name
+
+## Binance Public API
+
+GET binance/public/ping/
+
+GET binance/public/exchangeInfo/{symbol}
