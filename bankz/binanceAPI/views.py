@@ -16,6 +16,7 @@ class BinancePublic(APIView):
         if type is None:             return Response()
         elif type == 'ping':         return Response(self.ping())
         elif type == 'exchangeInfo': return Response(self.getExchangeInfo(symbol))
+        else:                        return Response()
 
 
     def ping(self):
@@ -37,5 +38,6 @@ class BinancePrivate(APIView):
 
     def get(self, request, type=None, symbol=None):
 
-        if type == None: return Response()
+        if type == None:      return Response()
         elif type == 'login': return Response()
+        else:                 return Response()
