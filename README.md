@@ -1,26 +1,41 @@
 # Bank-Z
 BankZ reposu
-to do: req.txt, rest api template projesi
-
+to do:
+- readme'de responseları gösterilecek
+- transfer kısmı için ayrı app'e geçiş yapılacak
 
 ## Auth API
 
-POST auth/login/
-- FORM-DATA username
-- FORM-DATA password
+### POST auth/token/
+#### JSON
+- username
+- password
 
-POST auth/login/refresh/
-- FORM-DATA refresh(token)
+### POST auth/token/refresh/
+#### JSON
+- refresh(token)
 
-POST auth/register/
-- FORM-DATA username
-- FORM-DATA password
-- FORM-DATA password2
-- FORM-DATA email
-- FORM-DATA first_name
-- FORM-DATA last_name
+### POST auth/register/
+#### JSON
+- username
+- password
+- password2
+- email
+- first_name
+- last_name
 
-## Binance Public API
+### GET getInfo/
+#### Authorization
+- Bearer token
+
+### POST trasfer/
+#### Authorization
+- Bearer token
+#### JSON
+- trasfer_id
+- balance
+
+## Binance Public API (güncellenecek!!!)
 
 GET binance/public/ping/
 

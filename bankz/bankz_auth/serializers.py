@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
+from bankz_auth.models import BankZUserParent, BankZUserChild
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -27,14 +28,16 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     password2 = serializers.CharField(write_only=True, required=True)
+    is_parent = serializers.BooleanField(write_only=True, required=True)
 
     class Meta:
 
         model = User
-        fields = ('username', 'password', 'password2', 'email', 'first_name', 'last_name')
+        fields = ('username', 'password', 'password2', 'email', 'first_name', 'last_name', 'is_parent')
         extra_kwargs = {
             'first_name': {'required': True},
-            'last_name': {'required': True}
+            'last_name': {'required': True},
+            'is_parent': {'required': True}
         }
     
 
@@ -58,5 +61,11 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         user.set_password(validated_data['password'])
         user.save()
+
+        if validated_data['is_parent']:
+            bankz_user = BankZUserParent.objects.create(user=user)
+        else:
+            bankz_user = BankZUserChild.objects.create(user=user)
+        bankz_user.save()
 
         return user
