@@ -2,14 +2,7 @@
 import uuid
 from django.db import models
 from django.contrib.auth.models import User
-
-
-class CashAccount(models.Model):
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    balance = models.FloatField()
-
+from cash_account.models import CashAccount
 
 class BankZUserParent(models.Model):
 
@@ -25,7 +18,7 @@ class BankZUserChild(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    parent = models.ForeignKey(BankZUserParent, on_delete=models.CASCADE, default=None, null=True)
+    parent = models.ForeignKey(BankZUserParent, on_delete=models.SET_DEFAULT, default=None, null=True)
     accounts = models.ManyToManyField(CashAccount, blank=True)
 
     def __str__(self):

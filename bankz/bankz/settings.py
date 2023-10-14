@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-_4nh^=h9$58=2nyy5dp^o)93(3tvge%&yiugrtfu3(dc&zhj%x
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'bankz_auth',
     'binanceAPI',
+    'cash_account',
 ]
 
 MIDDLEWARE = [

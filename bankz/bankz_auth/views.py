@@ -12,7 +12,8 @@ from rest_framework.permissions import IsAuthenticated
 
 from rest_framework_simplejwt.authentication import JWTAuthentication 
 
-from bankz_auth.models import BankZUserParent, BankZUserChild, CashAccount
+from bankz_auth.models import BankZUserParent, BankZUserChild
+from cash_account.models import CashAccount
 
 
 #? AUTHENTICATON ?#
@@ -34,10 +35,14 @@ class BankZAuthenticationView(APIView):
 
         user = User.objects.get(username=request.user.username)
 
+        isParent = None
+
         try:
             bankz_user = BankZUserChild.objects.get(user=user)
+            isParent = False
         except Exception as e:
             bankz_user = BankZUserParent.objects.get(user=user)
+            isParent = True
         except:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -45,64 +50,23 @@ class BankZAuthenticationView(APIView):
             bankz_account = CashAccount.objects.get(user=user)
         except:
             return Response(status=status.HTTP_404_NOT_FOUND)
+        
+        relatives = []
+
+        try:
+            if isParent:
+                for child in BankZUserChild.objects.filter(parent=bankz_user):
+                    relatives.append({'username': child.user.username, 'uuid': child.id})
+            else:
+                relatives.append({'username': bankz_user.parent.user.username, 'uuid': bankz_user.parent.id})
+        except:
+            pass
 
         content = {
             'username': bankz_user.user.username,
             'uuid': bankz_user.id,
-            'balance': bankz_account.balance
+            'balance': bankz_account.balance,
+            'relatives': relatives,
         }
 
         return Response(content)
-
-#? CASH ACCOUNT ?#
-class CashAccountTransfer(APIView):
-
-    permission_classes = (IsAuthenticated, )
-
-    def post(self, request):
-
-        user = User.objects.get(username=request.user.username)
-
-        uuid = request.data.get('transfer_id')
-        balance = request.data.get('balance')
-
-        try:
-            bankz_user = BankZUserParent.objects.get(user=user)
-        except:
-            return Response({'error': 'Unknown parent user!'}, status=status.HTTP_404_NOT_FOUND)
-
-        try:
-            child = BankZUserChild.objects.get(id=uuid)
-            child_user = child.user
-            if child.parent != bankz_user:
-                return Response({'error': 'Sent id is not a child of user!'}, status=status.HTTP_400_BAD_REQUEST)
-        except:
-            return Response({'error': 'Id not match with any child!'}, status=status.HTTP_404_NOT_FOUND)
-        
-        try:
-            cash_account = CashAccount.objects.get(user=user)
-        except:
-            return Response({'error': 'Parent has no cash account!'}, status=status.HTTP_404_NOT_FOUND)
-
-        try:
-            child_account = CashAccount.objects.get(user=child_user)
-        except:
-            return Response({'error': 'Child has no cash account!'}, status=status.HTTP_404_NOT_FOUND)
-        
-        if cash_account.balance < (balance + 0): # 0 is commision
-            return Response({'error': 'Given balance is more then account balance!'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        cash_account.balance -= balance
-        cash_account.save()
-        child_account.balance += balance
-        child_account.save()
-
-        content = {
-            'from': bankz_user.id,
-            'to': child.id,
-            'balance': balance,
-            'new_balance': cash_account.balance,
-            'new_child_account_balance': child_account.balance
-        }
-
-        return Response(content, status=status.HTTP_200_OK)

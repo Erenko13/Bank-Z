@@ -27,5 +27,6 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include('bankz_auth.urls')),
-    path('binance/', include('binanceAPI.urls'))
+    path('binance/', include('binanceAPI.urls')),
+    path('cash/', include('cash_account.urls'))
 ]
